@@ -578,6 +578,25 @@ skills:
   outputs:
   - distribution_day_count_report
   workflows: []
+- id: ict-smc-chart-reader
+  display_name: ICT/SMC Chart Reader
+  category: trade-planning
+  status: production
+  summary: Analyze a chart screenshot using ICT/Smart Money Concepts methodology -- HTF trend structure,
+    Break of Structure, inducement liquidity sweep, and Breaker Block return -- with dynamically-derived
+    stop loss and target levels.
+  timeframe: event-driven
+  difficulty: intermediate
+  integrations:
+  - id: chart_image
+    type: image
+    requirement: required
+    note: Chart screenshot input
+  inputs:
+  - chart_image
+  outputs:
+  - ict_smc_analysis_report
+  workflows: []
 - id: institutional-flow-tracker
   display_name: Institutional Flow Tracker
   category: advanced-satellite

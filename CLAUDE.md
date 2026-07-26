@@ -733,7 +733,7 @@ python3 -m pytest skills/skill-designer/scripts/tests/ -v
 
 ## Skill Interaction Patterns
 
-### Chart Analysis Skills (Sector Analyst, Breadth Chart Analyst, Technical Analyst)
+### Chart Analysis Skills (Sector Analyst, Breadth Chart Analyst, Technical Analyst, ICT/SMC Chart Reader)
 
 These skills expect image inputs:
 - User provides chart screenshots
@@ -746,6 +746,53 @@ These skills expect image inputs:
 2. Skill loads relevant reference framework
 3. Analysis generates structured markdown report
 4. Report saved to `reports/` directory
+
+### ICT/SMC Chart Reader Strategy (ICT/SMC Chart Reader)
+
+`ict-smc-chart-reader` applies ICT (Inner Circle Trader) / Smart Money
+Concepts methodology to a user-supplied chart screenshot. Unlike
+`technical-analyst`'s classic S/R and moving-average framework, this skill
+evaluates market structure through a strict four-stage sequence and
+**never uses a static or predetermined support/resistance level** — every
+level is re-derived from the current chart at analysis time.
+
+**Four-stage sequence (checked in order, mirrored for bearish setups):**
+
+1. **HTF Trend Structure** — classify higher-timeframe bias from structural
+   swing points: `BULLISH` (Higher Highs/Higher Lows), `BEARISH` (Lower
+   Highs/Lower Lows), or `NEUTRAL` (overlapping range).
+2. **BOS (Break of Structure)** — a **closing** break beyond the most recent
+   structural swing point in the direction of HTF bias, confirming
+   continuation. A break against the prevailing structure is a CHoCH
+   (Change of Character) and requires re-establishing HTF bias before
+   continuing. Wicks alone never confirm BOS/CHoCH.
+3. **Inducement (liquidity sweep)** — a minor swing high/low or equal
+   highs/lows (EQH/EQL) between the BOS point and the Breaker Block, swept
+   by a wick that closes back inside it (a stop run trapping retail
+   traders). Absence of a visible sweep lowers confidence rather than being
+   skipped.
+4. **Breaker Block return** — the last opposing-direction candle before the
+   BOS impulse, valid as a Breaker only once its origin swing has been
+   broken (otherwise it is an untested Order Block, not a Breaker). Entry
+   logic requires price to return to this zone and react there.
+
+**Sequence status classification:** `NOT_YET_FORMED` / `DEVELOPING` /
+`SEQUENCE_COMPLETE` / `INVALIDATED` (Breaker closed through without
+reacting — discard and re-derive structure from the current chart).
+
+**Stop loss / target (dynamic only):** stop placed below the Breaker
+Block's low for longs / above its high for shorts, sized qualitatively to
+recent volatility; invalidation is a closing break beyond that same
+boundary. Target is the next structural swing or external liquidity pool in
+the trade's direction — never a fixed price detached from chart structure.
+
+**Output format:** `ict_smc_analysis_[SYMBOL]_[YYYY-MM-DD].md` saved to
+`reports/`, covering HTF structure, BOS/CHoCH, inducement status, Breaker
+Block zone and reaction, overall sequence status, and — only when
+`SEQUENCE_COMPLETE` — a trade idea with stop loss, target, and confidence
+level. See `skills/ict-smc-chart-reader/references/ict_smc_methodology.md`
+for full definitions and `skills/ict-smc-chart-reader/assets/ict_smc_analysis_template.md`
+for the report template.
 
 ### News Analysis Skills (Market News Analyst)
 
